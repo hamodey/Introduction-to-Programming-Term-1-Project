@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>zMIDI test</title>
+    <title>P5MidiKeyboard</title>
 </head>
 
 <body>
@@ -28,8 +28,11 @@
             window.zMIDI = zMIDI; window.zMIDIEvent = zMIDIEvent; window.MIDINotes = MIDINotes;
         });
         
+        //: Variables
+        var connected = false;
+
+        //: Function activated if connection was successful
         function onConnectSuccess() {
-            connected = true;
             var inputs = zMIDI.getInChannels();
             if (inputs.length === 0) {
                 onConnectFailure();
@@ -43,10 +46,13 @@
                 });
                 textSize(13);
                 fill(0, 120, 153);
+                background(250, 200, 200);
+                connected = true;
                 text("Connected to: " + inputs[0].manufacturer + " " + inputs[0].name, 5, 100);
             }
         }
 
+        //
         function messageHandler(event) {
             var msg = "";
             switch (event.type) {
@@ -68,14 +74,15 @@
         }
 
         function onConnectFailure() {
-            showMessage("Could not connect to MIDI peripherals...");
+            textSize(13);
+            fill(0, 0, 0);
+            smooth();
+            text("Could not connect to MIDI peripherals...", 5, 100);
         }
 
         function showMessage(aMessage) {
             document.getElementById("status").innerHTML += aMessage;
         }
-
-        var connected = false;
 
         function setup() {
             createCanvas(1366, 768);
@@ -109,6 +116,7 @@
         function connectionButtonClicked() {
             if((mouseX > 250 && mouseX < 400) && (mouseY > 15 && mouseY < 70) && mouseIsPressed) {
                 zMIDI.connect(onConnectSuccess, onConnectFailure);
+                alert("works");
             }
         }
     </script>
