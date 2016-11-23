@@ -25,12 +25,12 @@
             , urlArgs: "bust=" + Date.now()
         });
         require(["zMIDI", "zMIDIEvent", "MIDINotes"], function (zMIDI, zMIDIEvent, MIDINotes) {
-            window.zMIDI = zMIDI; window.zMIDIEvent = zMIDIEvent; window.MIDINotes = MIDINotes;
+            window.zMIDI = zMIDI;
+            window.zMIDIEvent = zMIDIEvent;
+            window.MIDINotes = MIDINotes;
         });
-        
         //: Variables
         var connected = false;
-
         //: Function activated if connection was successful
         function onConnectSuccess() {
             var inputs = zMIDI.getInChannels();
@@ -51,7 +51,6 @@
                 text("Connected to: " + inputs[0].manufacturer + " " + inputs[0].name, 5, 100);
             }
         }
-
         //
         function messageHandler(event) {
             var msg = "";
@@ -75,9 +74,9 @@
 
         function onConnectFailure() {
             textSize(13);
-            fill(0, 0, 0);
+            fill(255, 0, 0);
             smooth();
-            text("Could not connect to MIDI peripherals...", 5, 100);
+            text("Could not connect to MIDI peripherals... Try again.", 5, 100);
         }
 
         function showMessage(aMessage) {
@@ -98,13 +97,15 @@
             smooth();
             text("Introduction to Programming", 5, 50);
             text("Goldsmiths, University of London", 5, 70);
-            if(connected == false) {
+            if (connected == false) {
                 drawConnectionButton();
                 connectionButtonClicked();
             }
-            
+            if (connected == true) {
+                drawPads();
+            }
         }
-        
+
         function drawConnectionButton() {
             fill(0, 100, 200);
             rect(250, 15, 150, 55);
@@ -112,11 +113,25 @@
             fill(0, 0, 0);
             text("Click to connect", 255, 50);
         }
-        
+
         function connectionButtonClicked() {
-            if((mouseX > 250 && mouseX < 400) && (mouseY > 15 && mouseY < 70) && mouseIsPressed) {
+            if ((mouseX > 250 && mouseX < 400) && (mouseY > 15 && mouseY < 70) && mouseIsPressed) {
                 zMIDI.connect(onConnectSuccess, onConnectFailure);
-                alert("works");
+            }
+        }
+
+        function drawPads() {
+            var length = 100;
+            var tmpY = 150;
+            var tmpX = 10;
+            var space = 100;
+            for(var i = 0; i < 4; i++) {
+                tmpX = 10;
+                for(var j = 0; j < 4; j++) {
+                    rect(tmpX, tmpY, length, length);
+                    tmpX += space+20;
+                }
+                tmpY += space+20;
             }
         }
     </script>
