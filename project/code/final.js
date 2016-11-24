@@ -59,6 +59,7 @@ function onConnectSuccess() {
         background(250, 200, 200);
         connected = true;
         text("Connected to: " + inputs[0].manufacturer + " " + inputs[0].name, 5, 100);
+        messages[5] = Message("Connected to: " + inputs[0].manufacturer + " " + inputs[0].name, 0, 120, 153, 5, 100, 13);
     }
 }
 //: Function returns messages from the keyboard
@@ -79,7 +80,9 @@ function messageHandler(event) {
         msg = "zMIDIEvent type : " + event.type + " with value " + event.value;
         break;
     }
-    console.log("received on MIDI port " + event.port + ": " + msg + " coming in on channel " + event.channel);
+    messages[4] = Message("received on MIDI port" + event.port + ": " + msg + " coming in on channel " + event.channel, 255, 0, 0, 5, 125, 15);
+    background(250, 200, 200);
+    drawObjectMessage(messages[4]);
 }
 //: Print out the message in html
 function showMessage(aMessage) {
@@ -89,17 +92,22 @@ function showMessage(aMessage) {
 function setup() {
     createCanvas(1366, 768);
     background(250, 200, 200);
-    drawTitle();
     drawConnectionButton();
 }
 var titleStatus = false;
+
 //: Draw function
 function draw() {
+    drawTitle();
     if (connected == false) {
         connectionButtonClicked();
     }
     if (connected == true) {
         drawPads();
+    }
+
+    if(messages[5] != null) {
+        drawObjectMessage(messages[5]);
     }
 }
 
@@ -107,7 +115,6 @@ function drawTitle() {
     drawObjectMessage(messages[1]);
     drawObjectMessage(messages[2]);
     drawObjectMessage(messages[3]);
-
 }
 
 function drawConnectionButton() {
@@ -124,6 +131,7 @@ function connectionButtonClicked() {
     }
 }
     function drawPads() {
+        fill(0, 0, 0);
         var length = 100;
         var tmpY = 150;
         var tmpX = 10;
