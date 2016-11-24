@@ -11,31 +11,67 @@ require(["zMIDI", "zMIDIEvent", "MIDINotes"], function (zMIDI, zMIDIEvent, MIDIN
 
 //: Variables
 var connected = false;
+var pads = [];
 
 //: Object returns Message
 function Message(text, r, g, b, posX, posY, fontSize) {
     var message = {
-        text: text,
-        r: r,
-        g: g,
-        b: b,
-        x: posX,
-        y: posY,
-        textSize: fontSize
+        text: text
+        , r: r
+        , g: g
+        , b: b
+        , x: posX
+        , y: posY
+        , textSize: fontSize
     };
     return message;
 }
 
+function Pad(r, posX, posY, value) {
+    var pad = {
+        length: 100
+        , x: posX
+        , y: posY
+        , value: value
+        , color_R: r
+    };
+    return pad;
+}
+
+//: Multiple of 4
+function initializePads() {
+    var tempX = 10;
+    var tempY = 150;
+    var padValue = 32;
+    var i, j;
+    for (i = 0; i < amount / 4; i++) {
+        tempX = 10;
+        for (j = 0; j < amount / 4; j++) {
+            var padObj = Pad(0, tempX, tempY, padValue);
+            pads.push(padObj);
+            tempX += 120;
+            padValue += 1;
+        }
+        tempY += 120;
+    }
+}
+
+function printOutPadsArray() {
+    for (var i = 0; i < pads.length; i++) {
+        console.log[i];
+    }
+}
 var messages;
+
 function preload() {
-    messages = [Message("Could not connect to MIDI peripherals...Try again", 255, 0, 0, 5, 100, 13),
-                Message("Term 1 Project - wtyzi001", 0, 0, 0, 5, 30, 20),
-                Message("Introduction to Programming", 0, 0, 0, 5, 50, 13),
-                Message("Goldsmiths, University of London", 212, 175, 55, 5, 70, 13)];
+    messages = [Message("Could not connect to MIDI peripherals...Try again", 255, 0, 0, 5, 100, 13)
+                , Message("Term 1 Project - wtyzi001", 0, 0, 0, 5, 30, 20)
+                , Message("Introduction to Programming", 0, 0, 0, 5, 50, 13)
+                , Message("Goldsmiths, University of London", 212, 175, 55, 5, 70, 13)];
 }
 
 //: Function draws message from object
-function drawObjectMessage(msg) {
+function drawMessageObject(msg) {
     fill(msg.r, msg.g, msg.b);
     textSize(msg.textSize);
     text(msg.text, msg.x, msg.y);
@@ -45,7 +81,7 @@ function drawObjectMessage(msg) {
 function onConnectSuccess() {
     var inputs = zMIDI.getInChannels();
     if (inputs.length === 0) {
-        drawObjectMessage(messages[0]);
+        drawMessageObject(messages[0]);
     }
     else {
         var feedback = ""
@@ -62,6 +98,7 @@ function onConnectSuccess() {
         messages[5] = Message("Connected to: " + inputs[0].manufacturer + " " + inputs[0].name, 0, 120, 153, 5, 100, 13);
     }
 }
+
 //: Function returns messages from the keyboard
 function messageHandler(event) {
     var msg = "";
@@ -80,43 +117,46 @@ function messageHandler(event) {
         msg = "zMIDIEvent type : " + event.type + " with value " + event.value;
         break;
     }
-    messages[4] = Message("received on MIDI port" + event.port + ": " + msg + " coming in on channel " + event.channel, 255, 0, 0, 5, 125, 15);
+    messages[4] = Message(msg + " coming in on channel " + event.channel, 255, 0, 0, 5, 125, 15);
     background(250, 200, 200);
-    drawObjectMessage(messages[4]);
+    drawMessageObject(messages[4]);
 }
+
 //: Print out the message in html
 function showMessage(aMessage) {
     document.getElementById("status").innerHTML += aMessage;
 }
+
 //: Setup function
 function setup() {
     createCanvas(1366, 768);
     background(250, 200, 200);
     drawConnectionButton();
+    printOutPadsArray();
 }
-var titleStatus = false;
 
 //: Draw function
 function draw() {
     drawTitle();
     if (connected == false) {
         connectionButtonClicked();
-    }
-    if (connected == true) {
-        drawPads();
+    } else {
+        drawPadObjects(initializePads());
     }
 
-    if(messages[5] != null) {
-        drawObjectMessage(messages[5]);
+    if (messages[5] != null) {
+        drawMessageObject(messages[5]);
     }
 }
 
+//: Function draws title in top left corner
 function drawTitle() {
-    drawObjectMessage(messages[1]);
-    drawObjectMessage(messages[2]);
-    drawObjectMessage(messages[3]);
+    drawMessageObject(messages[1]);
+    drawMessageObject(messages[2]);
+    drawMessageObject(messages[3]);
 }
 
+//: Function draws a connection button
 function drawConnectionButton() {
     fill(0, 100, 200);
     rect(250, 15, 150, 55);
@@ -125,33 +165,16 @@ function drawConnectionButton() {
     text("Click to connect", 255, 50);
 }
 
+//: Function activated if user clicked on connection button
 function connectionButtonClicked() {
     if ((mouseX > 250 && mouseX < 400) && (mouseY > 15 && mouseY < 70) && mouseIsPressed) {
-        zMIDI.connect(onConnectSuccess, alert("error"));
+        zMIDI.connect(onConnectSuccess, console.log("error"));
     }
 }
-    function drawPads() {
-        fill(0, 0, 0);
-        var length = 100;
-        var tmpY = 150;
-        var tmpX = 10;
-        var space = 100;
-        for (var i = 0; i < 4; i++) {
-            tmpX = 10;
-            for (var j = 0; j < 4; j++) {
-                rect(tmpX, tmpY, length, length);
-                tmpX += space + 20;
-            }
-            tmpY += space + 20;
-        }
-    }
 
-    function keyboardButton(x, y, soundPath) {
-        var obj = {
-            length: 100
-            , x: x
-            , y: y
-            , sound: loadSound(soundPath)
-        };
-        return obj;
-    }
+function drawPadObjects(array) {
+
+    array.forEach(function(index) {
+        rect(index.x, index.y, index.length, index.length);
+    });
+}
