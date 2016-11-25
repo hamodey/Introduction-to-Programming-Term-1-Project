@@ -11,7 +11,9 @@ require(["zMIDI", "zMIDIEvent", "MIDINotes"], function (zMIDI, zMIDIEvent, MIDIN
 //: Variables
 var connected = false;
 var pads = [];
-//: Object returns Message
+var messages;
+
+//: Message object
 function Message(text, r, g, b, posX, posY, fontSize) {
     var message = {
         text: text
@@ -24,7 +26,7 @@ function Message(text, r, g, b, posX, posY, fontSize) {
     };
     return message;
 }
-
+//Pad object
 function Pad(r, posX, posY, value, soundPath) {
     var pad = {
         length: 100
@@ -36,7 +38,7 @@ function Pad(r, posX, posY, value, soundPath) {
     };
     return pad;
 }
-//: Multiple of 4
+//: Initializes the array with pads
 function initializePads() {
     var tempX = 10;
     var tempY = 150;
@@ -64,7 +66,6 @@ function printOutPadsArray() {
         console.log(pads[i]);
     }
 }
-var messages;
 
 function preload() {
     messages = [Message("Could not connect to MIDI peripherals...Try again", 255, 0, 0, 5, 100, 13)
@@ -107,7 +108,7 @@ function messageHandler(event) {
     case zMIDIEvent.NOTE_ON:
         var pitch = MIDINotes.getPitchByNoteNumber(event.value);
         msg = "note on event value: " + event.value + " ( note is " + pitch.note + pitch.octave + " @ " + pitch.frequency + "Hz ) " + "@ velocity " + event.velocity;
-            //: When pad is pressed, change its colour
+            //: When pad is pressed, change its colour and play the sound
             for (var j = 0; j < pads.length; j++) {
             if (pads[j].value == event.value) {
                 pads[j].color_R = 255;
@@ -117,6 +118,7 @@ function messageHandler(event) {
         break;
     case zMIDIEvent.NOTE_OFF:
         msg = "note off event value: " + event.value + " @ velocity " + event.velocity;
+        //: When pad is released, change its colour and stop playing the sound
         for (var j = 0; j < pads.length; j++) {
             if (pads[j].value == event.value) {
                 pads[j].color_R = 0;
