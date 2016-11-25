@@ -44,9 +44,12 @@ function initializePads() {
     var tempY = 150;
     var padValue = 32;
     var i, j;
-    for (i = 0; i < amount / 4; i++) {
+    for (i = 0; i < 4; i++) {
         tempX = 10;
-        for (j = 0; j < amount / 4; j++) {
+        for (j = 0; j < 4; j++) {
+            if(padValue == 40) {
+                padValue = 44;
+            }
             var padObj = Pad(0, tempX, tempY, padValue);
             pads.push(padObj);
             tempX += 120;
@@ -58,7 +61,7 @@ function initializePads() {
 
 function printOutPadsArray() {
     for (var i = 0; i < pads.length; i++) {
-        console.log[i];
+        console.log(pads[i]);
     }
 }
 var messages;
@@ -68,6 +71,7 @@ function preload() {
                 , Message("Term 1 Project - wtyzi001", 0, 0, 0, 5, 30, 20)
                 , Message("Introduction to Programming", 0, 0, 0, 5, 50, 13)
                 , Message("Goldsmiths, University of London", 212, 175, 55, 5, 70, 13)];
+    initializePads();
 }
 
 //: Function draws message from object
@@ -106,9 +110,19 @@ function messageHandler(event) {
     case zMIDIEvent.NOTE_ON:
         var pitch = MIDINotes.getPitchByNoteNumber(event.value);
         msg = "note on event value: " + event.value + " ( note is " + pitch.note + pitch.octave + " @ " + pitch.frequency + "Hz ) " + "@ velocity " + event.velocity;
+        for(var j = 0; j < pads.length; j++) {
+            if(pads[j].value == event.value) {
+                pads[j].color_R = 255;
+            }
+        }
         break;
     case zMIDIEvent.NOTE_OFF:
         msg = "note off event value: " + event.value + " @ velocity " + event.velocity;
+        for(var j = 0; j < pads.length; j++) {
+            if(pads[j].value == event.value) {
+                pads[j].color_R = 0;
+            }
+        }
         break;
     case zMIDIEvent.CONTROL_CHANGE:
         msg = "CC event value: " + event.velocity;
@@ -120,6 +134,7 @@ function messageHandler(event) {
     messages[4] = Message(msg + " coming in on channel " + event.channel, 255, 0, 0, 5, 125, 15);
     background(250, 200, 200);
     drawMessageObject(messages[4]);
+
 }
 
 //: Print out the message in html
@@ -141,7 +156,7 @@ function draw() {
     if (connected == false) {
         connectionButtonClicked();
     } else {
-        drawPadObjects(initializePads());
+        drawPadObjects(pads);
     }
 
     if (messages[5] != null) {
@@ -168,13 +183,15 @@ function drawConnectionButton() {
 //: Function activated if user clicked on connection button
 function connectionButtonClicked() {
     if ((mouseX > 250 && mouseX < 400) && (mouseY > 15 && mouseY < 70) && mouseIsPressed) {
-        zMIDI.connect(onConnectSuccess, console.log("error"));
+        zMIDI.connect(onConnectSuccess, console.log("connection error"));
     }
 }
 
-function drawPadObjects(array) {
-
-    array.forEach(function(index) {
+function drawPadObjects() {
+    pads.forEach(function(index) {
+        fill(index.color_R, 0, 0);
         rect(index.x, index.y, index.length, index.length);
     });
 }
+
+
