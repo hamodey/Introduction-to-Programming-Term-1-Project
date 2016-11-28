@@ -11,7 +11,7 @@ require(["zMIDI", "zMIDIEvent", "MIDINotes"], function (zMIDI, zMIDIEvent, MIDIN
 //: Variables
 var connected = false;
 var pads = [];
-var messages;
+var messages = [];
 
 //: Message object
 function Message(text, r, g, b, posX, posY, fontSize) {
@@ -71,7 +71,9 @@ function preload() {
     messages = [Message("Could not connect to MIDI peripherals...Try again", 255, 0, 0, 5, 100, 13)
                 , Message("Term 1 Project - wtyzi001", 0, 0, 0, 5, 30, 20)
                 , Message("Introduction to Programming", 0, 0, 0, 5, 50, 13)
-                , Message("Goldsmiths, University of London", 212, 175, 55, 5, 70, 13)];
+                , Message("Goldsmiths, University of London", 212, 175, 55, 5, 70, 13)
+                , Message("to-do: recording, loading samples from a json file", 255, 0, 0, 600, 300, 13)];
+
     initializePads();
 }
 //: Function draws message from object
@@ -166,6 +168,7 @@ function drawTitle() {
     drawMessageObject(messages[1]);
     drawMessageObject(messages[2]);
     drawMessageObject(messages[3]);
+    drawMessageObject(messages[4]);
 }
 //: Function draws a connection button
 function drawConnectionButton() {
